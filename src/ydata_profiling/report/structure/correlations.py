@@ -10,24 +10,24 @@ from ydata_profiling.visualisation import plot
 def get_correlation_items(
     config: Settings, summary: BaseDescription
 ) -> Optional[Renderable]:
-    """Create the list of correlation items
+    """创建相关性项的列表
 
     Args:
-        config: report Settings object
-        summary: dict of correlations
+        config: 报告配置对象
+        summary: 相关性字典
 
     Returns:
-        List of correlation items to show in the interface.
+        要在界面中显示的相关性项列表。
     """
     items: List[Renderable] = []
 
     key_to_data = {
-        "pearson": (-1, "Pearson's r"),
-        "spearman": (-1, "Spearman's ρ"),
-        "kendall": (-1, "Kendall's τ"),
+        "pearson": (-1, "皮尔逊相关系数 (Pearson's r)"),
+        "spearman": (-1, "斯皮尔曼相关系数 (Spearman's ρ)"),
+        "kendall": (-1, "肯德尔相关系数 (Kendall's τ)"),
         "phi_k": (0, "Phik (φk)"),
-        "cramers": (0, "Cramér's V (φc)"),
-        "auto": (-1, "Auto"),
+        "cramers": (0, "克雷梅尔V系数 (Cramér's V (φc))"),
+        "auto": (-1, "自动 (Auto)"),
     }
 
     image_format = config.plot.image_format
@@ -51,7 +51,7 @@ def get_correlation_items(
             diagrams_grid = Container(
                 diagrams,
                 anchor_id=f"{key}_diagram_with_desc",
-                name="Heatmap" if config.correlation_table else name,
+                name="热图" if config.correlation_table else name,
                 sequence_type="batch_grid",
                 batch_size=len(config.html.style._labels),
             )
@@ -69,7 +69,7 @@ def get_correlation_items(
                 tables_tab = Container(
                     tables,
                     anchor_id=f"{key}_tables",
-                    name="Table",
+                    name="表格",
                     sequence_type="batch_grid",
                     batch_size=len(config.html.style._labels),
                 )
@@ -90,13 +90,13 @@ def get_correlation_items(
                 image_format=image_format,
                 alt=name,
                 anchor_id=f"{key}_diagram",
-                name="Heatmap" if config.correlation_table else name,
+                name="热图" if config.correlation_table else name,
                 classes="correlation-diagram",
             )
 
             if config.correlation_table:
                 table = CorrelationTable(
-                    name="Table", correlation_matrix=item, anchor_id=f"{key}_table"
+                    name="表格", correlation_matrix=item, anchor_id=f"{key}_table"
                 )
 
                 diagram_table_tabs = Container(
@@ -113,7 +113,7 @@ def get_correlation_items(
     corr = Container(
         items,
         sequence_type="tabs",
-        name="Correlations",
+        name="相关性",
         anchor_id="correlations_tab",
     )
 

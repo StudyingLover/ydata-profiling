@@ -1,4 +1,5 @@
 """Generate the report."""
+
 from typing import List, Sequence
 
 import pandas as pd
@@ -35,31 +36,33 @@ def get_missing_items(config: Settings, summary: BaseDescription) -> list:
         A list with the missing diagrams
     """
     items = [
-        ImageWidget(
-            item["matrix"],
-            image_format=config.plot.image_format,
-            alt=item["name"],
-            name=item["name"],
-            anchor_id=key,
-            caption=item["caption"],
-        )
-        if isinstance(item["name"], str)
-        else Container(
-            [
-                ImageWidget(
-                    item["matrix"][i],
-                    image_format=config.plot.image_format,
-                    alt=item["name"][i],
-                    name=config.html.style._labels[i],
-                    anchor_id=key,
-                    caption=item["caption"][i],
-                )
-                for i in range(len(item["name"]))
-            ],
-            sequence_type="batch_grid",
-            batch_size=len(config.html.style._labels),
-            anchor_id=key,
-            name=item["name"][0],
+        (
+            ImageWidget(
+                item["matrix"],
+                image_format=config.plot.image_format,
+                alt=item["name"],
+                name=item["name"],
+                anchor_id=key,
+                caption=item["caption"],
+            )
+            if isinstance(item["name"], str)
+            else Container(
+                [
+                    ImageWidget(
+                        item["matrix"][i],
+                        image_format=config.plot.image_format,
+                        alt=item["name"][i],
+                        name=config.html.style._labels[i],
+                        anchor_id=key,
+                        caption=item["caption"][i],
+                    )
+                    for i in range(len(item["name"]))
+                ],
+                sequence_type="batch_grid",
+                batch_size=len(config.html.style._labels),
+                anchor_id=key,
+                name=item["name"][0],
+            )
         )
         for key, item in summary.missing.items()
     ]
@@ -169,7 +172,7 @@ def render_variables_section(
 
         bottom = None
         if "bottom" in template_variables and template_variables["bottom"] is not None:
-            btn = ToggleButton("More details", anchor_id=template_variables["varid"])
+            btn = ToggleButton("更多信息", anchor_id=template_variables["varid"])
             bottom = Collapse(btn, template_variables["bottom"])
 
         var = Variable(
@@ -216,7 +219,7 @@ def get_duplicates_items(
             items.append(
                 Duplicate(
                     duplicate=duplicates,
-                    name="Most frequently occurring",
+                    name="最常出现的",
                     anchor_id="duplicates",
                 )
             )
@@ -237,7 +240,7 @@ def get_definition_items(definitions: pd.DataFrame) -> Sequence[Renderable]:
         items.append(
             Duplicate(
                 duplicate=definitions,
-                name="Columns",
+                name="列",
                 anchor_id="definitions",
             )
         )
@@ -316,17 +319,19 @@ def get_interactions(config: Settings, interactions: dict) -> list:
                 items.append(
                     Container(
                         [
-                            ImageWidget(
-                                zplot,
-                                image_format=config.plot.image_format,
-                                alt=f"{x_col} x {y_col}",
-                                anchor_id=f"interactions_{slugify(x_col)}_{slugify(y_col)}",
-                                name=config.html.style._labels[idx],
-                            )
-                            if zplot != ""
-                            else HTML(
-                                f"<h4 class='indent'>{config.html.style._labels[idx]}</h4><br />"
-                                f"<em>Interaction plot not present for dataset</em>"
+                            (
+                                ImageWidget(
+                                    zplot,
+                                    image_format=config.plot.image_format,
+                                    alt=f"{x_col} x {y_col}",
+                                    anchor_id=f"interactions_{slugify(x_col)}_{slugify(y_col)}",
+                                    name=config.html.style._labels[idx],
+                                )
+                                if zplot != ""
+                                else HTML(
+                                    f"<h4 class='indent'>{config.html.style._labels[idx]}</h4><br />"
+                                    f"<em>Interaction plot not present for dataset</em>"
+                                )
                             )
                             for idx, zplot in enumerate(splot)
                         ],
@@ -369,7 +374,7 @@ def get_report_structure(config: Settings, summary: BaseDescription) -> Root:
             Container(
                 get_dataset_items(config, summary, alerts),
                 sequence_type="tabs",
-                name="Overview",
+                name="概述",
                 anchor_id="overview",
             ),
         ]
@@ -377,7 +382,7 @@ def get_report_structure(config: Settings, summary: BaseDescription) -> Root:
         if len(summary.variables) > 0:
             section_items.append(
                 Dropdown(
-                    name="Variables",
+                    name="变量",
                     anchor_id="variables-dropdown",
                     id="variables-dropdown",
                     is_row=True,
@@ -386,7 +391,7 @@ def get_report_structure(config: Settings, summary: BaseDescription) -> Root:
                     item=Container(
                         render_variables_section(config, summary),
                         sequence_type="accordion",
-                        name="Variables",
+                        name="变量",
                         anchor_id="variables",
                     ),
                 )
@@ -398,7 +403,7 @@ def get_report_structure(config: Settings, summary: BaseDescription) -> Root:
                 Container(
                     scatter_items,
                     sequence_type="tabs" if len(scatter_items) <= 10 else "select",
-                    name="Interactions",
+                    name="交互",
                     anchor_id="interactions",
                 ),
             )
@@ -413,7 +418,7 @@ def get_report_structure(config: Settings, summary: BaseDescription) -> Root:
                 Container(
                     missing_items,
                     sequence_type="tabs",
-                    name="Missing values",
+                    name="缺失值",
                     anchor_id="missing",
                 )
             )
@@ -424,7 +429,7 @@ def get_report_structure(config: Settings, summary: BaseDescription) -> Root:
                 Container(
                     items=sample_items,
                     sequence_type="tabs",
-                    name="Sample",
+                    name="采样",
                     anchor_id="sample",
                 )
             )
@@ -436,21 +441,21 @@ def get_report_structure(config: Settings, summary: BaseDescription) -> Root:
                     items=duplicate_items,
                     sequence_type="batch_grid",
                     batch_size=len(duplicate_items),
-                    name="Duplicate rows",
+                    name="重复行",
                     anchor_id="duplicate",
                 )
             )
 
         sections = Container(
             section_items,
-            name="Root",
+            name="根",
             sequence_type="sections",
             full_width=config.html.full_width,
         )
         pbar.update()
 
     footer = HTML(
-        content='Report generated by <a href="https://ydata.ai/?utm_source=opensource&utm_medium=pandasprofiling&utm_campaign=report">YData</a>.'
+        content='Report generated by <a href="https://ydata.ai/?utm_source=opensource&utm_medium=pandasprofiling&utm_campaign=report">YData</a>.(Translated by <a href="https://github.com/StudyingLover">StudyingLover</a>)'
     )
 
     return Root("Root", sections, footer, style=config.html.style)
